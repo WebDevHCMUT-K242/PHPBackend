@@ -58,16 +58,23 @@ class Database {
 
         $user = new UserData(null, $username, $display_name, password_hash($plaintext_password, PASSWORD_BCRYPT));
 
-        $stmt = $connection->prepare("INSERT INTO users (username, display_name, hashed_password) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $user->username, $user->display_name, $user->hashed_password);
-        if ($stmt->execute()) {
-            $user->set_id($stmt->insert_id);
-            return $user;
-        } else {
-            if ($stmt->errno === 1062) {
+        try {
+            $stmt = $connection->prepare("INSERT INTO users (username, display_name, hashed_password) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $user->username, $user->display_name, $user->hashed_password);
+            if ($stmt->execute()) {
+                $user->set_id($stmt->insert_id);
+                return $user;
+            } else {
+                if ($stmt->errno === 1062) {
+                    return "Username already taken.";
+                }
+                return false;
+            }
+        } catch (mysqli_sql_exception $e) {
+            if ($e->getCode() === 1062) {
                 return "Username already taken.";
             }
-            return false;
+            return "Error occurred while creating user: " . $e->getMessage();
         }
     }
 
