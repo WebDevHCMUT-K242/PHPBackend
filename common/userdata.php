@@ -1,4 +1,5 @@
 <?php
+
 class UserData
 {
     public $id;
@@ -12,4 +13,3 @@ class UserData
         $this->name = $name;
     }
 }
-?>
