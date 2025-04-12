@@ -23,8 +23,33 @@ class Database {
     }
 
     public static function createUser($username, $display_name, $plaintext_password) {
+        $max_username_length = 50;
+        $max_display_name_length = 255;
+        $min_password_length = 6;
+        $max_password_length = 255;
+
+        if (empty($username) || empty($display_name) || empty($plaintext_password)) {
+            return "No blanks allowed.";
+        }
+
+        if (!preg_match('/^[a-z0-9_]+$/', $username)) {
+            return "Username can only contain lowercase alphanumeric characters and underscores.";
+        }
+        if (strlen($username) > $max_username_length) {
+            return "Username cannot exceed {$max_username_length} characters.";
+        }
+        if (strlen($display_name) > $max_display_name_length) {
+            return "Display name cannot exceed {$max_display_name_length} characters.";
+        }
+        if (strlen($plaintext_password) < $min_password_length) {
+            return "Password must be at least {$min_password_length} characters long.";
+        }
+        if (strlen($plaintext_password) > $max_password_length) {
+            return "Password cannot exceed {$max_password_length} characters.";
+        }
+
         $connection = self::getConnection();
-        self::maybeCreateUserTable();  // Ensure the table exists
+        self::maybeCreateUserTable();
 
         $user = new UserData(null, $username, $display_name, password_hash($plaintext_password, PASSWORD_BCRYPT));
 
