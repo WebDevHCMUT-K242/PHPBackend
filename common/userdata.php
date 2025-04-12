@@ -2,13 +2,17 @@
 
 class UserData {
     public $id;
+    public $is_admin;
     public $username;
     public $display_name;
     public $hashed_password;
 
-    function __construct($id = null, $username = null, $display_name = null, $hashed_password = null) {
+    function __construct($id = null, $is_admin = false, $username = null, $display_name = null, $hashed_password = null) {
         if ($id) {
             $this->set_id($id);
+        }
+        if ($is_admin) {
+            $this->set_is_admin($is_admin);
         }
         if ($username) {
             $this->set_username($username);
@@ -23,6 +27,10 @@ class UserData {
 
     function set_id($id) {
         $this->id = $id;
+    }
+
+    function set_is_admin($is_admin) {
+        $this->is_admin = $is_admin;
     }
 
     function set_username($name) {

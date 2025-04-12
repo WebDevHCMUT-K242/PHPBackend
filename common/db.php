@@ -20,6 +20,7 @@ class Database {
         self::getConnection()->query("
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
+                is_admin TINYINT(1) NOT NULL,
                 username VARCHAR(100) NOT NULL UNIQUE,
                 display_name VARCHAR(255) NOT NULL,
                 hashed_password VARCHAR(255) NOT NULL
@@ -41,26 +42,28 @@ class Database {
             return "Username can only contain lowercase alphanumeric characters and underscores.";
         }
         if (strlen($username) > $max_username_length) {
-            return "Username cannot exceed {$max_username_length} characters.";
+            return "Username cannot exceed $max_username_length characters.";
         }
         if (strlen($display_name) > $max_display_name_length) {
-            return "Display name cannot exceed {$max_display_name_length} characters.";
+            return "Display name cannot exceed $max_display_name_length characters.";
         }
         if (strlen($plaintext_password) < $min_password_length) {
-            return "Password must be at least {$min_password_length} characters long.";
+            return "Password must be at least $min_password_length characters long.";
         }
         if (strlen($plaintext_password) > $max_password_length) {
-            return "Password cannot exceed {$max_password_length} characters.";
+            return "Password cannot exceed $max_password_length characters.";
         }
 
         $connection = self::getConnection();
         self::maybeCreateUserTable();
 
-        $user = new UserData(null, $username, $display_name, password_hash($plaintext_password, PASSWORD_BCRYPT));
+        $is_admin = false;
+        $user = new UserData(null, $is_admin, $username, $display_name, password_hash($plaintext_password, PASSWORD_BCRYPT));
 
         try {
-            $stmt = $connection->prepare("INSERT INTO users (username, display_name, hashed_password) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $user->username, $user->display_name, $user->hashed_password);
+            $stmt = $connection->prepare("INSERT INTO users (is_admin, username, display_name, hashed_password) VALUES (?, ?, ?, ?)");
+            $is_admin_int = (int)$user->is_admin;
+            $stmt->bind_param("isss", $is_admin_int, $user->username, $user->display_name, $user->hashed_password);
             if ($stmt->execute()) {
                 $user->set_id($stmt->insert_id);
                 return $user;
@@ -95,6 +98,7 @@ class Database {
             if (password_verify($plaintext_password, $row['hashed_password'])) {
                 $user = new UserData(
                     $row['id'],
+                    $row['is_admin'] == 1,
                     $row['username'],
                     $row['display_name'],
                     null

@@ -40,12 +40,14 @@ session_start();
 session_regenerate_id(true);
 
 $_SESSION['user_id'] = $user->id;
+$_SESSION['is_admin'] = $user->is_admin;
 $_SESSION['username'] = $user->username;
 
 echo json_encode([
     "success" => true,
     "user" => [
         "id" => $user->id,
+        "is_admin" => $user->is_admin,
         "username" => $user->username,
         "display_name" => $user->display_name
     ]

@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . "/../../common/userdata.php";
+require_once __DIR__ . "/../../common/db.php";
+
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -42,6 +45,7 @@ if ($user === false) {
         "success" => true,
         "user" => [
             "id" => $user->id,
+            "is_admin" => $user->is_admin,
             "username" => $user->username,
             "display_name" => $user->display_name
         ]
