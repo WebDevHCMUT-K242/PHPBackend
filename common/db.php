@@ -85,7 +85,7 @@ class Database {
         $conn = self::getConnection();
 
         // Prepare and execute query
-        $stmt = $conn->prepare("SELECT id, username, display_name, hashed_password FROM users WHERE username = ?");
+        $stmt = $conn->prepare("SELECT id, is_admin, username, display_name, hashed_password FROM users WHERE username = ?");
         $stmt->bind_param("s", $username);
         $stmt->execute();
         $result = $stmt->get_result();
