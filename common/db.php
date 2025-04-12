@@ -112,4 +112,27 @@ class Database {
 
         return $user;
     }
+
+    public static function getUser($id) {
+        $conn = self::getConnection();
+
+        $stmt = $conn->prepare("SELECT id, is_admin, username, display_name FROM users WHERE id = ?");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        if ($result->num_rows !== 1) {
+            return null;
+        }
+
+        $row = $result->fetch_assoc();
+        return new UserData(
+            $row['id'],
+            $row['is_admin'] == 1,
+            $row['username'],
+            $row['display_name'],
+            null // hashed_password is not returned for security reasons
+        );
+    }
+
 }
