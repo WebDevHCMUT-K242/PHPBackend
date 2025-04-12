@@ -5,8 +5,13 @@ class Database {
 
     public static function getConnection() {
         if (self::$instance === null) {
-            // Only for local development, hard-coding this for now.
-            self::$instance = new mysqli('localhost', 'root', '', 'db');
+            $connection = new mysqli('localhost', 'root', '');
+            if ($connection->connect_error) {
+                die("Database connection failed: " . $connection->connect_error);
+            }
+            $connection->query("CREATE DATABASE IF NOT EXISTS db");
+            $connection->select_db('db');
+            self::$instance = $connection;
         }
         return self::$instance;
     }
