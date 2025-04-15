@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . "/../../common/userdata.php";
-require_once __DIR__ . "/../../common/db.php";
-
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -19,9 +16,6 @@ if (!isset($input['username'], $input['display_name'], $input['password'])) {
     exit;
 }
 
-require_once __DIR__ . "/../../common/db.php";
-require_once __DIR__ . "/../../common/userdata.php";
-
 $username = trim($input['username']);
 $display_name = trim($input['display_name']);
 $password = $input['password'];
@@ -31,6 +25,8 @@ if ($username === '' || $display_name === '' || $password === '') {
     echo json_encode(["error" => "Fields cannot be empty."]);
     exit;
 }
+
+require_once __DIR__ . "/../../common/db.php";
 
 $user = Database::createUser($username, $display_name, $password);
 
