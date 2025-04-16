@@ -1,8 +1,5 @@
 <?php
 
-require_once __DIR__ . "/../../common/userdata.php";
-require_once __DIR__ . "/../../common/db.php";
-
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -28,7 +25,9 @@ if ($username === '' || $password === '') {
     exit;
 }
 
-$user = Database::doUserLogin($username, $password);
+require_once __DIR__ . "/../../common/userdata.php";
+
+$user = UserData::doUserLogin($username, $password);
 
 if ($user === null) {
     http_response_code(401);

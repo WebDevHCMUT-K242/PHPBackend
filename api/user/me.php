@@ -10,9 +10,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . "/../../common/db.php";
+require_once __DIR__ . "/../../common/userdata.php";
 
-$user = Database::getUser($_SESSION['user_id']);
+$user = UserData::getUser($_SESSION['user_id']);
 if ($user === null) {
     http_response_code(404);
     echo json_encode(["error" => "User not found"]);

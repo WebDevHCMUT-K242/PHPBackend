@@ -26,9 +26,9 @@ if ($username === '' || $display_name === '' || $password === '') {
     exit;
 }
 
-require_once __DIR__ . "/../../common/db.php";
+require_once __DIR__ . "/../../common/userdata.php";
 
-$user = Database::createUser($username, $display_name, $password);
+$user = UserData::createUser($username, $display_name, $password);
 
 if ($user === false) {
     http_response_code(500);
