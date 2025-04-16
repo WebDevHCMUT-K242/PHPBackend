@@ -10,21 +10,11 @@ class UserData {
     public $hashed_password;
 
     function __construct($id = null, $is_admin = false, $username = null, $display_name = null, $hashed_password = null) {
-        if ($id) {
-            $this->set_id($id);
-        }
-        if ($is_admin) {
-            $this->set_is_admin($is_admin);
-        }
-        if ($username) {
-            $this->set_username($username);
-        }
-        if ($display_name) {
-            $this->set_display_name($display_name);
-        }
-        if ($hashed_password) {
-            $this->set_hashed_password($hashed_password);
-        }
+        $this->id = $id;
+        $this->is_admin = $is_admin;
+        $this->username = $username;
+        $this->display_name = $display_name;
+        $this->hashed_password = $hashed_password;
     }
 
     function set_id($id) {
@@ -47,6 +37,8 @@ class UserData {
         $this->hashed_password = $hashed_password;
     }
 
+    // Database operations
+
     public static function maybeCreateUserTable() {
         Database::getConnection()->query("
             CREATE TABLE IF NOT EXISTS users (
@@ -55,7 +47,7 @@ class UserData {
                 username VARCHAR(100) NOT NULL UNIQUE,
                 display_name VARCHAR(255) NOT NULL,
                 hashed_password VARCHAR(255) NOT NULL
-            );
+            ) ENGINE=InnoDB;
         ");
     }
 
