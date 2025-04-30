@@ -1,7 +1,16 @@
 <?php
 
+include_once __DIR__ . "/userdata.php";
+include_once __DIR__ . "/qa.php";
+
 class Database {
     private static $instance = null;
+
+    public static function maybeCreateTables() {
+        UserData::maybeCreateUserTable();
+        QaThread::maybeCreateQaThreadsTable();
+        QaPost::maybeCreateQaPostsTable();
+    }
 
     public static function getConnection() {
         if (self::$instance === null) {
@@ -12,6 +21,8 @@ class Database {
             $connection->query("CREATE DATABASE IF NOT EXISTS db");
             $connection->select_db('db');
             self::$instance = $connection;
+
+            self::maybeCreateTables();
         }
         return self::$instance;
     }

@@ -78,7 +78,6 @@ class UserData {
         }
 
         $connection = Database::getConnection();
-        self::maybeCreateUserTable();
 
         $user = new UserData(null, false, $username, $display_name, password_hash($plaintext_password, PASSWORD_BCRYPT));
 
@@ -155,5 +154,31 @@ class UserData {
             $row['display_name'],
             null // hashed_password is not returned for security reasons
         );
+    }
+
+    public static function getUsers($ids) {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $conn = Database::getConnection();
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $conn->prepare("SELECT id, display_name, username, is_admin FROM users WHERE id IN ($placeholders)");
+        $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $users = [];
+
+        while ($row = $result->fetch_assoc()) {
+            $users[$row['id']] = [
+                'display_name' => $row['display_name'],
+                'username' => $row['username'],
+                'is_admin' => (bool)$row['is_admin']
+            ];
+        }
+
+        return $users;
     }
 }
