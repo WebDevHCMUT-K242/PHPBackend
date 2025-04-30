@@ -2,14 +2,17 @@
 
 header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(["error" => "Only GET requests are allowed."]);
+    echo json_encode(["error" => "Only POST requests are allowed."]);
     exit;
 }
 
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$per_page = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+$raw_input = file_get_contents("php://input");
+$data = json_decode($raw_input, true);
+
+$page = isset($data['page']) ? (int)$data['page'] : 1;
+$per_page = isset($data['per_page']) ? (int)$data['per_page'] : 10;
 
 if ($page < 1 || $per_page < 1) {
     http_response_code(400);
