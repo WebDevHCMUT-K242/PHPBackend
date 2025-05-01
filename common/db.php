@@ -1,6 +1,7 @@
 <?php
 
 include_once __DIR__ . "/userdata.php";
+include_once __DIR__ . "/editable_about.php";
 include_once __DIR__ . "/qa.php";
 
 class Database {
@@ -10,6 +11,7 @@ class Database {
         UserData::maybeCreateUserTable();
         QaThread::maybeCreateQaThreadsTable();
         QaPost::maybeCreateQaPostsTable();
+        EditableAbout::maybeCreateTables();
     }
 
     public static function getConnection() {
