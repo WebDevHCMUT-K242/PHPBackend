@@ -24,6 +24,7 @@ require_once __DIR__ . "/../../common/qa.php";
 require_once __DIR__ . "/../../common/userdata.php";
 
 $threads = QaThread::listThreads($page, $per_page);
+$page_count = QaThread::getPageCount($per_page);
 
 $user_ids = [];
 foreach ($threads as $thread) {
@@ -36,5 +37,6 @@ $users = UserData::getUsers($user_ids);
 echo json_encode([
     "success" => true,
     "threads" => $threads,
-    "users" => $users
+    "users" => $users,
+    "pages" => $page_count,
 ]);

@@ -81,6 +81,21 @@ class QaThread {
         return null;
     }
 
+    public static function getPageCount($per_page = 10) {
+        $conn = Database::getConnection();
+
+        $stmt = $conn->prepare("SELECT COUNT(*) AS total_threads FROM qa_threads");
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $total_threads = $row['total_threads'];
+
+        $page_count = ceil($total_threads / $per_page);
+
+        return $page_count;
+    }
+
     public static function listThreads($page = 1, $per_page = 10) {
         $conn = Database::getConnection();
 
