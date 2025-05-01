@@ -12,7 +12,7 @@ $raw_input = file_get_contents("php://input");
 $data = json_decode($raw_input, true);
 
 $page = isset($data['page']) ? (int)$data['page'] : 1;
-$per_page = isset($data['per_page']) ? (int)$data['per_page'] : 10;
+$per_page = isset($data['per_page']) ? (int)$data['per_page'] : 20;
 
 if ($page < 1 || $per_page < 1) {
     http_response_code(400);

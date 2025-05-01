@@ -1,6 +1,7 @@
 <?php
 
 include_once __DIR__ . "/db.php";
+include_once __DIR__ . "/userdata.php";
 
 class UserData {
     public $id;
@@ -151,8 +152,7 @@ class UserData {
             $row['id'],
             $row['is_admin'] == 1,
             $row['username'],
-            $row['display_name'],
-            null // hashed_password is not returned for security reasons
+            $row['display_name']
         );
     }
 
@@ -172,11 +172,12 @@ class UserData {
         $users = [];
 
         while ($row = $result->fetch_assoc()) {
-            $users[$row['id']] = [
-                'display_name' => $row['display_name'],
-                'username' => $row['username'],
-                'is_admin' => (bool)$row['is_admin']
-            ];
+            $users[$row['id']] = new UserData(
+                $row['id'],
+                $row['is_admin'] == 1,
+                $row['username'],
+                $row['display_name']
+            );
         }
 
         return $users;

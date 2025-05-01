@@ -43,7 +43,8 @@ $users_by_id = [];
 foreach ($users as $user) {
     $users_by_id[$user->id] = [
         "username" => $user->username,
-        "display_name" => $user->display_name
+        "display_name" => $user->display_name,
+        "is_admin" => $user->is_admin,
     ];
 }
 
@@ -68,5 +69,5 @@ echo json_encode([
             "last_updated" => $post->last_updated
         ];
     }, $posts),
-    "users" => $users_by_id
+    "users" => $users
 ]);
