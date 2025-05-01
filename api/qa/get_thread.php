@@ -65,8 +65,7 @@ echo json_encode([
             "thread_id" => $post->thread_id,
             "user_id" => $post->user_id,
             "message" => $post->message,
-            "timestamp" => $post->timestamp,
-            "last_updated" => $post->last_updated
+            "timestamp" => $post->timestamp
         ];
     }, $posts),
     "users" => $users

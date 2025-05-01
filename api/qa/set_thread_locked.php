@@ -27,7 +27,7 @@ if (!isset($input['thread_id'], $input['is_locked'])) {
 $thread_id = (int)$input['thread_id'];
 $is_locked = (bool)$input['is_locked'];
 
-require_once __DIR__ . "/../../common/qa_thread.php";
+require_once __DIR__ . "/../../common/qa.php";
 
 $success = QaThread::setThreadIsLocked($thread_id, $is_locked);
 

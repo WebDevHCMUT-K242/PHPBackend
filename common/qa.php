@@ -173,7 +173,7 @@ class QaPost {
     public static function maybeCreateQaPostsTable() {
         Database::getConnection()->query("
             CREATE TABLE IF NOT EXISTS qa_posts (
-                id INT NOT NULL,
+                id INT NOT NULL AUTO_INCREMENT,
                 thread_id INT NOT NULL,
                 user_id INT NOT NULL,
                 message TEXT NOT NULL,
@@ -209,7 +209,7 @@ class QaPost {
             SELECT id, thread_id, user_id, message, timestamp
             FROM qa_posts
             WHERE thread_id = ?
-            ORDER BY timestamp ASC
+            ORDER BY timestamp
         ");
         $stmt->bind_param("i", $thread_id);
         $stmt->execute();
@@ -236,7 +236,7 @@ class QaPost {
             SELECT id, thread_id, user_id, message, timestamp
             FROM qa_posts
             WHERE thread_id = ? AND user_id = ?
-            ORDER BY timestamp ASC
+            ORDER BY timestamp
         ");
         $stmt->bind_param("ii", $thread_id, $user_id);
         $stmt->execute();
