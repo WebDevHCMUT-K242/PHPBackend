@@ -16,7 +16,7 @@ class EditableAbout {
             CREATE TABLE IF NOT EXISTS editable_about_contents (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 type VARCHAR(255) NOT NULL,
-                value TEXT NOT NULL,
+                text TEXT NOT NULL,
                 display_order INT NOT NULL
             ) ENGINE=InnoDB;
         ");
@@ -59,7 +59,7 @@ class EditableAbout {
         $stmt->execute();
 
         $stmt = $conn->prepare("
-            INSERT INTO editable_about_contents (type, value, display_order)
+            INSERT INTO editable_about_contents (type, text, display_order)
             VALUES (?, ?, ?)
         ");
         $stmt->bind_param('ssi', $type, $text, $index);
@@ -131,7 +131,7 @@ class EditableAbout {
 
         $stmt = $conn->prepare("
             UPDATE editable_about_contents
-            SET type = ?, value = ?, display_order = ?
+            SET type = ?, text = ?, display_order = ?
             WHERE id = ?
         ");
         $stmt->bind_param('ssii', $type, $text, $newIndex, $id);
@@ -158,7 +158,7 @@ class EditableAbout {
         $lastUpdated = $updatedRow ? (int)$updatedRow['integer_value'] : 0;
 
         $contentResult = $conn->query("
-            SELECT id, type, value FROM editable_about_contents
+            SELECT id, type, text FROM editable_about_contents
             ORDER BY display_order ASC
         ");
         $contents = [];
@@ -166,7 +166,7 @@ class EditableAbout {
             $contents[] = [
                 'id' => (int)$row['id'],
                 'type' => $row['type'],
-                'value' => $row['value'],
+                'text' => $row['text'],
             ];
         }
 
