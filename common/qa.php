@@ -230,15 +230,14 @@ class QaPost {
         return $posts;
     }
 
-    public static function getPost($thread_id, $user_id) {
+    public static function getPost($thread_id, $post_id) {
         $conn = Database::getConnection();
         $stmt = $conn->prepare("
             SELECT id, thread_id, user_id, message, timestamp
             FROM qa_posts
-            WHERE thread_id = ? AND user_id = ?
-            ORDER BY timestamp
+            WHERE thread_id = ? AND id = ?
         ");
-        $stmt->bind_param("ii", $thread_id, $user_id);
+        $stmt->bind_param("ii", $thread_id, $post_id);
         $stmt->execute();
 
         $result = $stmt->get_result();
@@ -246,12 +245,13 @@ class QaPost {
             return null;
         }
 
+        $row = $result->fetch_assoc();
         return new QaPost(
-            $result['id'],
-            $result['thread_id'],
-            $result['user_id'],
-            $result['message'],
-            $result['timestamp']
+            $row['id'],
+            $row['thread_id'],
+            $row['user_id'],
+            $row['message'],
+            $row['timestamp']
         );
     }
 
