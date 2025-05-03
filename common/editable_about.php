@@ -5,6 +5,7 @@ include_once __DIR__ . "/db.php";
 class EditableAbout {
     public static function maybeCreateTables() {
         $conn = Database::getConnection();
+
         $conn->query("
             CREATE TABLE IF NOT EXISTS editable_about_props (
                 property VARCHAR(255) NOT NULL PRIMARY KEY,
@@ -20,6 +21,46 @@ class EditableAbout {
                 display_order INT NOT NULL
             ) ENGINE=InnoDB;
         ");
+
+        $res = $conn->query("SELECT COUNT(*) AS count FROM editable_about_props");
+        $row = $res->fetch_assoc();
+        if ((int)$row['count'] === 0) {
+            $stmt = $conn->prepare("INSERT INTO editable_about_props (property, text_value) VALUES (?, ?)");
+            $stmt->bind_param("ss", $property, $textValue);
+            $property = "title";
+            $textValue = "About us";
+            $stmt->execute();
+            $stmt->close();
+        }
+
+        $res = $conn->query("SELECT COUNT(*) AS count FROM editable_about_contents");
+        $row = $res->fetch_assoc();
+        if ((int)$row['count'] === 0) {
+            $stmt = $conn->prepare("INSERT INTO editable_about_contents (type, text, display_order) VALUES (?, ?, ?)");
+
+            $type = "h2";
+            $text = "Our mission";
+            $order = 0;
+            $stmt->bind_param("ssi", $type, $text, $order);
+            $stmt->execute();
+
+            $type = "p";
+            $text = "Our mission is to redefine hardware excellence through a curated ecosystem of premium PC components. We empower builders and enthusiasts alike with scalable, high-performance solutions that push the boundaries of thermal efficiency, modularity, and overclocking potential.";
+            $order = 1;
+            $stmt->execute();
+
+            $type = "p";
+            $text = "By leveraging strategic vendor partnerships and just-in-time logistics, we deliver consistent value and responsiveness in a rapidly evolving tech landscape. Our commitment to supply chain agility ensures your builds stay on spec and on time.";
+            $order = 2;
+            $stmt->execute();
+
+            $type = "p";
+            $text = "From silicon to chassis, we believe in enabling every user—from first-time system integrators to enterprise deployment specialists—with the tools to elevate digital experiences and maximize lifecycle ROI.";
+            $order = 3;
+            $stmt->execute();
+
+            $stmt->close();
+        }
     }
 
     private static function bumpLastUpdated() {
