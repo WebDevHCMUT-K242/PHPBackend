@@ -39,7 +39,7 @@
                 return $stmt->fetchAll();
             } catch (\PDOException $e) {
                 error_log("Get Contacts Error: " . $e->getMessage());
-                return []; // Trả về mảng rỗng nếu lỗi
+                return [];
             }
         }
 
@@ -73,6 +73,44 @@
                 return false;
             }
         }
+
+        public static function buildJSON() {
+            $conn = Database::getConnection();
+    
+            $titleResult = $conn->query("
+                SELECT text_value FROM editable_about_props
+                WHERE property = 'title'
+            ");
+            $titleRow = $titleResult->fetch_assoc();
+            $title = $titleRow ? $titleRow['text_value'] : '';
+    
+            $updatedResult = $conn->query("
+                SELECT integer_value FROM editable_about_props
+                WHERE property = 'last_updated'
+            ");
+            $updatedRow = $updatedResult->fetch_assoc();
+            $lastUpdated = $updatedRow ? (int)$updatedRow['integer_value'] : 0;
+    
+            $contentResult = $conn->query("
+                SELECT id, type, text FROM editable_about_contents
+                ORDER BY display_order ASC
+            ");
+            $contents = [];
+            while ($row = $contentResult->fetch_assoc()) {
+                $contents[] = [
+                    'id' => (int)$row['id'],
+                    'type' => $row['type'],
+                    'text' => $row['text'],
+                ];
+            }
+    
+            return [
+                'title' => $title,
+                'last_updated' => $lastUpdated,
+                'contents' => $contents
+            ];
+        }
+
     }
 ?>
     
