@@ -9,7 +9,9 @@
         exit;
     }
 
-    require_once __DIR__ . '/../home.php';
+    require_once __DIR__ . '/home.php';
+    require_once __DIR__ . '/../../common/HomePageContentManager.php';
+
 
     $data = json_decode(file_get_contents('php://input'), true);
     if (json_last_error() !== JSON_ERROR_NONE) {
@@ -17,16 +19,16 @@
         exit;
     }
 
-    $key = $data['key'] ?? null;
-    $value = $data['value'] ?? null;
+    $key = $data['elementKey'] ?? null;
+    $value = $data['currentValue'] ?? null;
 
     if (!$key || $value === null) {
         echo json_encode(['error' => 'Missing key or value']);
         exit;
     }
 
-    if (EditableAbout::updateField($key, $value)) {
-        echo json_encode(['success' => true, 'key' => $key]);
-    } else {
-        echo json_encode(['error' => 'Failed to update field']);
-    }
+    // if (EditableHome::updateField($key, $value)) {
+    //     echo json_encode(['success' => true, 'key' => $key]);
+    // } else {
+    //     echo json_encode(['error' => 'Failed to update field']);
+    // }

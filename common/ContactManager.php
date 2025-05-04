@@ -13,15 +13,8 @@
             }
         }
 
-        /**
-         * Thêm liên hệ mới vào CSDL
-         * @param string $name
-         * @param string $email
-         * @param string $message
-         * @return bool True nếu thành công, False nếu thất bại
-         */
+        
         public function addContact(string $name, string $email, string $message): bool {
-            // Validate input cơ bản
             if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($message)) {
                 return false;
             }
@@ -40,10 +33,6 @@
             }
         }
 
-        /**
-         * Lấy danh sách tất cả liên hệ, sắp xếp theo ngày gửi mới nhất
-         * @return array Danh sách liên hệ
-         */
         public function getContacts(): array {
              try {
                 $stmt = $this->pdo->query("SELECT contact_id, name, email, message, submitted_at, status FROM contacts ORDER BY submitted_at DESC");
@@ -54,16 +43,11 @@
             }
         }
 
-        /**
-         * Cập nhật trạng thái của một liên hệ
-         * @param int $contactId ID liên hệ
-         * @param string $status Trạng thái mới ('unread', 'read', 'responded')
-         * @return bool True nếu thành công, False nếu thất bại
-         */
+        
         public function updateStatus(int $contactId, string $status): bool {
             $allowedStatus = ['unread', 'read', 'responded'];
             if (!in_array($status, $allowedStatus)) {
-                return false; // Trạng thái không hợp lệ
+                return false;
             }
 
             try {
@@ -77,11 +61,7 @@
             }
         }
 
-        /**
-         * Xóa một liên hệ
-         * @param int $contactId ID liên hệ
-         * @return bool True nếu thành công, False nếu thất bại
-         */
+        
         public function deleteContact(int $contactId): bool {
              try {
                 $sql = "DELETE FROM contacts WHERE contact_id = :id";

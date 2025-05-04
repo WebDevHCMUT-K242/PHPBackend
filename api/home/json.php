@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-require_once __DIR__ . "/../../common/editable_about.php";
+require_once __DIR__ . "/../../common/HomePageContentManager.php";
 
-$new_json = Editable::buildJSON();
+$new_json = HomePageContentManager::buildJSON();
 
 echo json_encode([
     "success" => true,
