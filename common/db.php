@@ -4,6 +4,7 @@ include_once __DIR__ . "/userdata.php";
 include_once __DIR__ . "/editable_about.php";
 include_once __DIR__ . "/qa.php";
 include_once __DIR__ . "/productdata.php";
+include_once __DIR__ . "/HomePageContentManager.php";
 
 class Database {
     private static $instance = null;
@@ -14,6 +15,7 @@ class Database {
         QaPost::maybeCreateQaPostsTable();
         EditableAbout::maybeCreateTables();
         ProductData::maybeCreateProductTables();
+        HomePageContentManager::maybeCreateHomePageContentManagerTable();
     }
 
     public static function getConnection() {
