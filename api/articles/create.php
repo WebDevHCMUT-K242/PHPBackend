@@ -23,18 +23,18 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents("php://input"), true);
 // Kiểm tra input
-if (!isset($input['title'], $input['summary'])) {
+if (!isset($input['title'], $input['content'])) {
     http_response_code(400);
-    echo json_encode(["error" => "Missing title or summary."]);
+    echo json_encode(["error" => "Missing title or content."]);
     exit;
 }
 
 $title = trim($input['title']);
-$summary = trim($input['summary']);
+$content = trim($input['content']);
 
-if ($title === '' || $summary === '') {
+if ($title === '' || $content === '') {
     http_response_code(400);
-    echo json_encode(["error" => "Title and summary cannot be empty."]);
+    echo json_encode(["error" => "Title and content cannot be empty."]);
     exit;
 }
 
@@ -43,13 +43,11 @@ require_once __DIR__ . "/../../common/article.php";
 require_once __DIR__ . "/../../common/userdata.php";
 
 // Đảm bảo bảng tồn tại
-Database::maybeCreateTables();
-Article::maybeCreateArticlesTable();
-ArticleComment::maybeCreateCommentsTable();
+
 
 $userId = $_SESSION['user_id'];
 // Chưa xử lý upload ảnh, mặc định null
-$article_id = Article::createArticle($userId, $title, $summary, null);
+$article_id = Article::createArticle($userId, $title, $content, null);
 if ($article_id === null) {
     http_response_code(500);
     echo json_encode(["error" => "Failed to create article."]);

@@ -6,10 +6,10 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Handle preflight OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+    // if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    //     http_response_code(200);
+    //     exit();
+    // }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -53,7 +53,7 @@ $response = [
 ];
 
 foreach ($articles as $art) {
-    $users = UserData::getUsers($art->user_id);
+    $users = UserData::getUser($art->user_id);
     $response['articles'][] = [
         'id' => $art->id,
         'user_id' => $art->user_id,

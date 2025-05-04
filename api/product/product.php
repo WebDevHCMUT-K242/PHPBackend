@@ -3,21 +3,12 @@
 header("Content-Type: application/json");
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(["error" => "Not logged in"]);
-    exit;
-}
 
 require_once __DIR__ . "/../../common/userdata.php";
 require_once __DIR__ . "/../../common/db.php";
 
-$user = UserData::getUser($_SESSION['user_id']);
-if ($user === null || !$user->is_admin) {
-    http_response_code(403);
-    echo json_encode(["error" => "Unauthorized"]);
-    exit;
-}
+
+
 
 $action = $_GET["action"] ?? "";
 
@@ -45,6 +36,12 @@ if ($action === "get") {
     echo json_encode(["product" => $product, "variants" => $variants]);
 
 } else if ($action === "delete") {
+    $user = UserData::getUser($_SESSION['user_id']);
+    if ($user === null || !$user->is_admin) {
+        http_response_code(403);
+        echo json_encode(["error" => "Unauthorized"]);
+        exit;
+    }
     $conn->begin_transaction();
     try {
         $productId = intval($_GET["id"]);
@@ -63,7 +60,13 @@ if ($action === "get") {
     }
     $conn->commit();
     echo json_encode(["success" => true, "id" => $productId]);
-}   elseif ($action === "save" || $action === "create") {
+} elseif ($action === "save" || $action === "create") {
+    $user = UserData::getUser($_SESSION['user_id']);
+    if ($user === null || !$user->is_admin) {
+        http_response_code(403);
+        echo json_encode(["error" => "Unauthorized"]);
+        exit;
+    }
     $data = json_decode(file_get_contents("php://input"), true);
 
     if (!$data || !isset($data["name"], $data["description"], $data["variants"])) {

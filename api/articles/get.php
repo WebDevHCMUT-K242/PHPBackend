@@ -47,9 +47,8 @@ if (!$article) {
 $comments = ArticleComment::getCommentsForArticle($article_id);
 
 // Collect user IDs
-$user_ids = [$article->user_id];
-$user_ids = array_unique($user_ids);
-$user = UserData::getUsers($user_ids);
+$user_id = $article->user_id;
+$user = UserData::getUser($user_id);
 
 // Build user mapping
 
@@ -70,7 +69,7 @@ $response = [
 ];
 
 foreach ($comments as $c) {
-    $user_comment_ids = UserData::getUsers($c->user_id);
+    $user_comment_ids = UserData::getUser($c->user_id);
     $response['comments'][] = [
         'id' => $c->id,
         'article_id' => $c->article_id,
