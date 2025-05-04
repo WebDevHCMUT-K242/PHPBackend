@@ -1,7 +1,6 @@
 <?php
 
 header("Content-Type: application/json");
-
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -11,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once __DIR__ . "/../../common/userdata.php";
-require_once __DIR__ . "/../../common/database.php";
+require_once __DIR__ . "/../../common/db.php";
 
 $user = UserData::getUser($_SESSION['user_id']);
 if ($user === null || !$user->is_admin) {
@@ -22,12 +21,15 @@ if ($user === null || !$user->is_admin) {
 
 $action = $_GET["action"] ?? "";
 
+$conn = Database::getConnection();
+
 if ($action === "get") {
     $id = intval($_GET["id"] ?? 0);
-    $db = Database::getInstance();
-    $stmt = $db->prepare("SELECT * FROM products WHERE id = ?");
-    $stmt->execute([$id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $product = $result->fetch_assoc();
 
     if (!$product) {
         http_response_code(404);
@@ -35,88 +37,57 @@ if ($action === "get") {
         exit;
     }
 
-    $stmt = $db->prepare("SELECT * FROM product_variants WHERE product_id = ?");
-    $stmt->execute([$id]);
-    $variants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM variants WHERE product_id = ?");
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $variants = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 
-    echo json_encode([
-        "success" => true,
-        "product" => $product,
-        "variants" => $variants
-    ]);
-    exit;
-}
+    echo json_encode(["product" => $product, "variants" => $variants]);
 
-if ($action === "delete") {
-    $id = intval($_GET["id"] ?? 0);
-    $db = Database::getInstance();
-    $db->beginTransaction();
-    $stmt = $db->prepare("DELETE FROM product_variants WHERE product_id = ?");
-    $stmt->execute([$id]);
-    $stmt = $db->prepare("DELETE FROM products WHERE id = ?");
-    $stmt->execute([$id]);
-    $db->commit();
-    echo json_encode(["success" => true]);
-    exit;
-}
+} elseif ($action === "save" || $action === "create") {
+    $data = json_decode(file_get_contents("php://input"), true);
 
-$data = json_decode(file_get_contents("php://input"), true);
-if (!is_array($data)) {
+    if (!$data || !isset($data["name"], $data["description"], $data["variants"])) {
+        http_response_code(400);
+        echo json_encode(["error" => "Missing data"]);
+        exit;
+    }
+
+    $conn->begin_transaction();
+
+    try {
+        if ($action === "create") {
+            $stmt = $conn->prepare("INSERT INTO products (name, description) VALUES (?, ?)");
+            $stmt->bind_param("ss", $data["name"], $data["description"]);
+            $stmt->execute();
+            $productId = $stmt->insert_id;
+        } else {
+            $productId = intval($data["id"]);
+            $stmt = $conn->prepare("UPDATE products SET name = ?, description = ? WHERE id = ?");
+            $stmt->bind_param("ssi", $data["name"], $data["description"], $productId);
+            $stmt->execute();
+
+            $stmt = $conn->prepare("DELETE FROM variants WHERE product_id = ?");
+            $stmt->bind_param("i", $productId);
+            $stmt->execute();
+        }
+
+        $stmt = $conn->prepare("INSERT INTO variants (product_id, name, price, image) VALUES (?, ?, ?, ?)");
+        foreach ($data["variants"] as $variant) {
+            $stmt->bind_param("isss", $productId, $variant["name"], $variant["price"], $variant["image"]);
+            $stmt->execute();
+        }
+
+        $conn->commit();
+        echo json_encode(["success" => true, "id" => $productId]);
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        http_response_code(500);
+        echo json_encode(["error" => "Database error", "details" => $e->getMessage()]);
+    }
+
+} else {
     http_response_code(400);
-    echo json_encode(["error" => "Invalid data"]);
-    exit;
+    echo json_encode(["error" => "Invalid action"]);
 }
-
-if ($action === "save") {
-    $id = intval($data["id"] ?? 0);
-    $name = $data["name"] ?? "";
-    $description = $data["description"] ?? "";
-    $variants = $data["variants"] ?? [];
-
-    $db = Database::getInstance();
-    $stmt = $db->prepare("UPDATE products SET name = ?, description = ? WHERE id = ?");
-    $stmt->execute([$name, $description, $id]);
-
-    $stmt = $db->prepare("DELETE FROM product_variants WHERE product_id = ?");
-    $stmt->execute([$id]);
-
-    $stmt = $db->prepare("INSERT INTO product_variants (product_id, name, image, price) VALUES (?, ?, ?, ?)");
-    foreach ($variants as $variant) {
-        $stmt->execute([
-            $id,
-            $variant["name"] ?? "",
-            $variant["image"] ?? "",
-            $variant["price"] ?? ""
-        ]);
-    }
-
-    echo json_encode(["success" => true]);
-    exit;
-}
-
-if ($action === "create") {
-    $name = $data["name"] ?? "";
-    $description = $data["description"] ?? "";
-    $variants = $data["variants"] ?? [];
-
-    $db = Database::getInstance();
-    $stmt = $db->prepare("INSERT INTO products (name, description) VALUES (?, ?)");
-    $stmt->execute([$name, $description]);
-    $product_id = $db->lastInsertId();
-
-    $stmt = $db->prepare("INSERT INTO product_variants (product_id, name, image, price) VALUES (?, ?, ?, ?)");
-    foreach ($variants as $variant) {
-        $stmt->execute([
-            $product_id,
-            $variant["name"] ?? "",
-            $variant["image"] ?? "",
-            $variant["price"] ?? ""
-        ]);
-    }
-
-    echo json_encode(["success" => true, "product_id" => $product_id]);
-    exit;
-}
-
-http_response_code(400);
-echo json_encode(["error" => "Invalid action"]);
