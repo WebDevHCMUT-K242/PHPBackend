@@ -14,6 +14,8 @@ class Database {
         QaPost::maybeCreateQaPostsTable();
         EditableAbout::maybeCreateTables();
         ProductData::maybeCreateProductTables();
+        Article::maybeCreateArticlesTable();
+        ArticleComment::maybeCreateCommentsTable();
     }
 
     public static function getConnection() {
