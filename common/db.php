@@ -3,6 +3,7 @@
 include_once __DIR__ . "/userdata.php";
 include_once __DIR__ . "/editable_about.php";
 include_once __DIR__ . "/qa.php";
+include_once __DIR__ . "/productdata.php";
 
 class Database {
     private static $instance = null;
@@ -14,6 +15,8 @@ class Database {
         EditableAbout::maybeCreateTables();
         Article::maybeCreateArticlesTable();
         ArticleComment::maybeCreateCommentsTable();
+        ProductData::maybeCreateProductTables();
+
     }
 
     public static function getConnection() {
