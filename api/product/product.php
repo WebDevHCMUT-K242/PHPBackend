@@ -44,7 +44,26 @@ if ($action === "get") {
 
     echo json_encode(["product" => $product, "variants" => $variants]);
 
-} elseif ($action === "save" || $action === "create") {
+} else if ($action === "delete") {
+    $conn->begin_transaction();
+    try {
+        $productId = intval($_GET["id"]);
+
+        $stmt = $conn->prepare("DELETE FROM variants WHERE product_id = ?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+
+        $stmt = $conn->prepare("DELETE FROM products WHERE id = ?");
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+    } catch (Exception $e) {
+        $conn->rollback();
+        http_response_code(500);
+        echo json_encode(["error" => "Database error", "details" => $e->getMessage()]);
+    }
+    $conn->commit();
+    echo json_encode(["success" => true, "id" => $productId]);
+}   elseif ($action === "save" || $action === "create") {
     $data = json_decode(file_get_contents("php://input"), true);
 
     if (!$data || !isset($data["name"], $data["description"], $data["variants"])) {
