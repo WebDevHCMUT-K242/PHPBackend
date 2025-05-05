@@ -19,9 +19,9 @@ if (!is_dir($uploadDir)) {
     mkdir($uploadDir, 0755, true);
 }
 
-function base62_encode($num) {
-    $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $base = 62;
+function base36_encode($num) {
+    $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+    $base = 36;
     $result = '';
     do {
         $result = $chars[$num % $base] . $result;
@@ -30,7 +30,6 @@ function base62_encode($num) {
     return $result;
 }
 
-$referenceTime = strtotime("2025-05-03 01:00:00 UTC");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
@@ -39,9 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $timestamp = time();
-    $delta = $timestamp - $referenceTime;
-    $base62name = base62_encode($delta);
+    $timestamp = round(microtime(true) * 1000000);
+    $delta = $timestamp - 1746243600000000;
+    $base62name = base36_encode($delta*100000+random_int(0,99999));
 
     $imageType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
     if (!in_array($imageType, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {

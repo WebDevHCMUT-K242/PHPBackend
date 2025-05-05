@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . "/order.php";
 include_once __DIR__ . "/userdata.php";
 include_once __DIR__ . "/editable_about.php";
 include_once __DIR__ . "/editable_home.php";
@@ -21,9 +22,13 @@ class Database {
         ProductData::maybeCreateProductTables();
         Article::maybeCreateArticlesTable();
         ArticleComment::maybeCreateCommentsTable();
+
         EditableHome::maybeCreateTables();
-        // EditableContact::maybeCreateTables();
+        
         ContactSubmission::maybeCreateTables();
+
+        Order::maybeCreateOrderTable();
+
     }
 
     public static function getConnection() {

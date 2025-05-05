@@ -45,8 +45,8 @@ class Article {
 
     public static function createArticle($user_id, $title, $content) {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("INSERT INTO articles (user_id, title, content) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("isss", $user_id, $title, $content);
+        $stmt = $conn->prepare("INSERT INTO articles (user_id, title, content) VALUES ( ?, ?, ?)");
+        $stmt->bind_param("iss", $user_id, $title, $content);
         $stmt->execute();
         return $conn->insert_id;
     }
@@ -95,7 +95,7 @@ class Article {
     public static function updateArticle($article_id, $title, $content) {
         $conn = Database::getConnection();
         $stmt = $conn->prepare("UPDATE articles SET title = ?, content = ?, last_updated = CURRENT_TIMESTAMP WHERE id = ?");
-        $stmt->bind_param("sssi", $title, $content, $article_id);
+        $stmt->bind_param("ssi", $title, $content, $article_id);
         return $stmt->execute();
     }
 
