@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $timestamp = round(microtime(true) * 1000000);
     $delta = $timestamp - 1746243600000000;
-    $base62name = base36_encode($delta);
+    $base62name = base36_encode($delta*100000+random_int(0,99999));
 
     $imageType = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
     if (!in_array($imageType, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
