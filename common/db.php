@@ -3,9 +3,13 @@
 include_once __DIR__ . "/order.php";
 include_once __DIR__ . "/userdata.php";
 include_once __DIR__ . "/editable_about.php";
+include_once __DIR__ . "/editable_home.php";
 include_once __DIR__ . "/qa.php";
 include_once __DIR__ . "/productdata.php";
 include_once __DIR__ . "/article.php";
+include_once __DIR__ . "/contact_submission.php";
+include_once __DIR__ . "/article.php";
+
 
 class Database {
     private static $instance = null;
@@ -18,7 +22,13 @@ class Database {
         ProductData::maybeCreateProductTables();
         Article::maybeCreateArticlesTable();
         ArticleComment::maybeCreateCommentsTable();
+
+        EditableHome::maybeCreateTables();
+        
+        ContactSubmission::maybeCreateTables();
+
         Order::maybeCreateOrderTable();
+
     }
 
     public static function getConnection() {
