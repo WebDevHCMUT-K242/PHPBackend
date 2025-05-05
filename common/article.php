@@ -172,6 +172,5 @@ class ArticleComment {
 }
 
 // Ensure tables exist
-Database::maybeCreateTables();
 Article::maybeCreateArticlesTable();
 ArticleComment::maybeCreateCommentsTable();

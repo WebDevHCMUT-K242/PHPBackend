@@ -31,7 +31,6 @@ require_once __DIR__ . "/../../common/article.php";
 require_once __DIR__ . "/../../common/userdata.php";
 
 // Ensure tables exist
-Database::maybeCreateTables();
 Article::maybeCreateArticlesTable();
 ArticleComment::maybeCreateCommentsTable();
 
