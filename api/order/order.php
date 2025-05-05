@@ -1,11 +1,14 @@
 <?php
-contentheader('Content-Type: application/json');
+// api/order/order.php
+header('Content-Type: application/json');
 
-contentrequire_once __DIR__ . '/../../common/db.php';
+// Load database connection
+require_once __DIR__ . '/../../common/db.php';
 session_start();
 $conn = Database::getConnection();
 
-content$user_id  = $_SESSION['user_id']  ?? null;
+// --- Authentication ---
+$user_id  = $_SESSION['user_id']  ?? null;
 $is_admin = $_SESSION['is_admin'] ?? false;
 if (!$user_id) {
     http_response_code(401);
@@ -13,11 +16,13 @@ if (!$user_id) {
     exit;
 }
 
-content$action = $_REQUEST['action'] ?? '';
+// --- Request Routing ---
+$action = $_REQUEST['action'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($action) {
-    content    case 'cart_add':
+    // Add item to shopping cart
+    case 'cart_add':
         if ($method !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -27,7 +32,8 @@ switch ($action) {
         $variant_id = intval($_POST['variant_id'] ?? 0);
         $amount     = max(1, intval($_POST['amount'] ?? 1));
 
-        content        $stmt = $conn->prepare("SELECT order_id FROM orders WHERE user_id = ? AND status = 'shopping_cart' LIMIT 1");
+        // Find or create cart order_id
+        $stmt = $conn->prepare("SELECT order_id FROM orders WHERE user_id = ? AND status = 'shopping_cart' LIMIT 1");
         $stmt->bind_param('i', $user_id);
         $stmt->execute();
         $res = $stmt->get_result();
@@ -37,7 +43,8 @@ switch ($action) {
             $order_id = uniqid('order_', true);
         }
 
-        content        $stmt2 = $conn->prepare(
+        // Check for existing cart item of same variant
+        $stmt2 = $conn->prepare(
             "SELECT id, amount FROM orders 
              WHERE user_id = ? AND order_id = ? AND product_id = ? 
                AND variant_id = ? AND status = 'shopping_cart' LIMIT 1"
@@ -46,12 +53,14 @@ switch ($action) {
         $stmt2->execute();
         $res2 = $stmt2->get_result();
         if ($item = $res2->fetch_assoc()) {
-            content            $newAmount = intval($item['amount']) + $amount;
+            // Update amount
+            $newAmount = intval($item['amount']) + $amount;
             $upd = $conn->prepare("UPDATE orders SET amount = ? WHERE id = ?");
             $upd->bind_param('ii', $newAmount, $item['id']);
             $upd->execute();
         } else {
-            content            $ins = $conn->prepare(
+            // Insert new cart item
+            $ins = $conn->prepare(
                 "INSERT INTO orders 
                  (user_id, order_id, product_id, variant_id, amount, status) 
                  VALUES (?, ?, ?, ?, ?, 'shopping_cart')"
@@ -63,7 +72,8 @@ switch ($action) {
         echo json_encode(['success' => true, 'order_id' => $order_id]);
         break;
 
-    content    case 'cart_remove':
+    // Remove item from cart
+    case 'cart_remove':
         if ($method !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -80,7 +90,8 @@ switch ($action) {
         echo json_encode(['success' => true]);
         break;
 
-    content    case 'cart_update':
+    // Update variant or amount in cart
+    case 'cart_update':
         if ($method !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -121,7 +132,8 @@ switch ($action) {
         echo json_encode(['success' => true]);
         break;
 
-    content    case 'cart_list':
+    // List cart items
+    case 'cart_list':
         $stmt = $conn->prepare(
             "SELECT o.id, o.order_id, o.product_id, o.variant_id, o.amount,
                     v.price, p.name AS product_name, v.name AS variant_name, v.image
@@ -142,7 +154,8 @@ switch ($action) {
         echo json_encode(['items' => $items]);
         break;
 
-    content    case 'cart_checkout':
+    // Checkout: change cart to pending
+    case 'cart_checkout':
         if ($method !== 'POST') {
             http_response_code(405);
             echo json_encode(['error' => 'Method Not Allowed']);
@@ -158,7 +171,8 @@ switch ($action) {
         echo json_encode(['success' => true]);
         break;
 
-    content    case 'order_update_status':
+    // Admin: update order status
+    case 'order_update_status':
         if (!$is_admin) {
             http_response_code(403);
             echo json_encode(['error' => 'Forbidden']);
@@ -187,12 +201,14 @@ switch ($action) {
         echo json_encode(['success' => true]);
         break;
 
-    content    case 'order_list':
+    // List orders with pagination (includes display_name)
+    case 'order_list':
         $page    = max(1, intval($_GET['page']  ?? 1));
         $limit   = max(1, intval($_GET['limit'] ?? 10));
         $offset  = ($page - 1) * $limit;
 
-        content        if ($is_admin) {
+        // Count total entries
+        if ($is_admin) {
             $count_sql  = "SELECT COUNT(*) AS cnt FROM orders";
             $count_stmt = $conn->prepare($count_sql);
         } else {
@@ -204,7 +220,8 @@ switch ($action) {
         $total       = $count_stmt->get_result()->fetch_assoc()['cnt'];
         $total_pages = ceil($total / $limit);
 
-        content        if ($is_admin) {
+        // Fetch paginated data with user display_name
+        if ($is_admin) {
             $sql = "SELECT o.id, o.user_id, u.display_name AS user_display_name, 
                            o.order_id, o.product_id, o.variant_id, o.amount, 
                            o.status, o.created_at, v.price, p.name AS product_name, v.name AS variant_name
@@ -246,7 +263,8 @@ switch ($action) {
         ]);
         break;
 
-    content    default:
+    // Invalid action
+    default:
         http_response_code(400);
         echo json_encode(['error' => 'Invalid action']);
         break;
