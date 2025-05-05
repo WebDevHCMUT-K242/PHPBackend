@@ -8,28 +8,20 @@ include_once __DIR__ . "/qa.php";
 include_once __DIR__ . "/productdata.php";
 include_once __DIR__ . "/article.php";
 include_once __DIR__ . "/contact_submission.php";
-include_once __DIR__ . "/article.php";
 
+UserData::maybeCreateUserTable();
+QaThread::maybeCreateQaThreadsTable();
+QaPost::maybeCreateQaPostsTable();
+EditableAbout::maybeCreateTables();
+ProductData::maybeCreateProductTables();
+Article::maybeCreateArticlesTable();
+ArticleComment::maybeCreateCommentsTable();
+EditableHome::maybeCreateTables();
+ContactSubmission::maybeCreateTables();
+Order::maybeCreateOrderTable();
 
 class Database {
     private static $instance = null;
-
-    public static function maybeCreateTables() {
-        UserData::maybeCreateUserTable();
-        QaThread::maybeCreateQaThreadsTable();
-        QaPost::maybeCreateQaPostsTable();
-        EditableAbout::maybeCreateTables();
-        ProductData::maybeCreateProductTables();
-        Article::maybeCreateArticlesTable();
-        ArticleComment::maybeCreateCommentsTable();
-
-        EditableHome::maybeCreateTables();
-        
-        ContactSubmission::maybeCreateTables();
-
-        Order::maybeCreateOrderTable();
-
-    }
 
     public static function getConnection() {
         if (self::$instance === null) {
@@ -40,8 +32,6 @@ class Database {
             $connection->query("CREATE DATABASE IF NOT EXISTS db");
             $connection->select_db('db');
             self::$instance = $connection;
-
-            self::maybeCreateTables();
         }
         return self::$instance;
     }
