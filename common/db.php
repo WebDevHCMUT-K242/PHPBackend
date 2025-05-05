@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . "/order.php";
 include_once __DIR__ . "/userdata.php";
 include_once __DIR__ . "/editable_about.php";
 include_once __DIR__ . "/qa.php";
@@ -17,6 +18,7 @@ class Database {
         ProductData::maybeCreateProductTables();
         Article::maybeCreateArticlesTable();
         ArticleComment::maybeCreateCommentsTable();
+        Order::maybeCreateOrderTable();
     }
 
     public static function getConnection() {
